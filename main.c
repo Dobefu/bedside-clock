@@ -21,6 +21,7 @@ int main(void)
   int s;
 
   d = XOpenDisplay(NULL);
+
   if (d == NULL)
   {
     fprintf(stderr, "Cannot open display\n");
@@ -30,10 +31,6 @@ int main(void)
   // Create the window.
   s = DefaultScreen(d);
   w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, wp.width, wp.height, 0, BlackPixel(d, s), BlackPixel(d, s));
-  XMapWindow(d, w);
-
-  // Create a graphics context.
-  GC gc = XCreateGC(d, w, 0, 0);
 
   // Disable resizing.
   XSizeHints *sh = XAllocSizeHints();
@@ -43,10 +40,12 @@ int main(void)
   XSetWMSizeHints(d, w, sh, XA_WM_NORMAL_HINTS);
   XFree(sh);
 
+  // Create a graphics context.
+  GC gc = XCreateGC(d, w, 0, 0);
+
   // Set up input.
   XSelectInput(d, w, ExposureMask | KeyPressMask);
-
-  XFlush(d);
+  XMapWindow(d, w);
 
   while (1)
   {
