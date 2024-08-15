@@ -30,6 +30,10 @@ int main(void)
   // Create the window.
   s = DefaultScreen(d);
   w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, wp.width, wp.height, 0, BlackPixel(d, s), BlackPixel(d, s));
+  XMapWindow(d, w);
+
+  // Create a graphics context.
+  GC gc = XCreateGC(d, w, 0, 0);
 
   // Disable resizing.
   XSizeHints *sh = XAllocSizeHints();
@@ -41,7 +45,8 @@ int main(void)
 
   // Set up input.
   XSelectInput(d, w, ExposureMask | KeyPressMask);
-  XMapWindow(d, w);
+
+  XFlush(d);
 
   while (1)
   {
@@ -49,7 +54,12 @@ int main(void)
 
     if (e.type == Expose)
     {
-      XFillRectangle(d, w, DefaultGC(d, s), wp.width / 2 - 5, wp.height / 2 - 5, 10, 10);
+      XSetForeground(d, gc, WhitePixel(d, s));
+      XFillRectangle(d, w, gc, wp.width / 2 - 5, wp.height / 2 - 5, 10, 10);
+      XFillRectangle(d, w, gc, 0, 0, 10, 10);
+      XFillRectangle(d, w, gc, wp.width - 10, 0, 10, 10);
+      XFillRectangle(d, w, gc, 0, wp.height - 10, 10, 10);
+      XFillRectangle(d, w, gc, wp.width - 10, wp.height - 10, 10, 10);
     }
 
     // Close the window when escape is pressed.
