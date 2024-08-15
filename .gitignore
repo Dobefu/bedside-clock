@@ -1,5 +1,6 @@
 build/*
 !build/.gitkeep
+out/build/*
 
 CMakeLists.txt.user
 CMakeCache.txt
