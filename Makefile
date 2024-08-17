@@ -1,4 +1,4 @@
-SRCS = $(wildcard *.c)
+SRCS = $(wildcard *.c lib/*.c utils/*.c)
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -Wall -O2 -ffreestanding -fno-stack-protector -nostdinc -nostdlib -nostartfiles -mstrict-align
 

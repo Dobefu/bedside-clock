@@ -1,4 +1,4 @@
-#include "delays.h"
+#include "../utils/delays.h"
 #include "mbox.h"
 #include "uart.h"
 
@@ -22,12 +22,12 @@ typedef struct
 extern volatile unsigned char _binary_font_sfn_start;
 
 unsigned int width, height, pitch;
-unsigned char *lfb;
+unsigned char *fb;
 
 /**
  * Set screen resolution to 800x480
  */
-void lfb_init()
+void fb_init()
 {
   mbox[0] = 35 * 4;
   mbox[1] = MBOX_REQUEST;
@@ -79,7 +79,7 @@ void lfb_init()
     width = mbox[5];
     height = mbox[6];
     pitch = mbox[33];
-    lfb = (void *)((unsigned long)mbox[28]);
+    fb = (void *)((unsigned long)mbox[28]);
   }
   else
   {
@@ -90,7 +90,7 @@ void lfb_init()
 /**
  * Display a string using proportional SSFN
  */
-void lfb_print(int x, int y, char *s)
+void fb_print(int x, int y, char *s)
 {
   sfn_t *font = (sfn_t *)&_binary_font_sfn_start;
   unsigned char *ptr, *chr, *frg;
@@ -172,7 +172,7 @@ void lfb_print(int x, int y, char *s)
 
     // Uncompress and display fragments.
     ptr = chr + 6;
-    o = (unsigned long)lfb + y * pitch + x * 4;
+    o = (unsigned long)fb + y * pitch + x * 4;
 
     for (i = n = 0; i < chr[1]; i++, ptr += chr[0] & 0x40 ? 6 : 5)
     {

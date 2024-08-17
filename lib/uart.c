@@ -1,7 +1,7 @@
-#include "delays.h"
+#include "../utils/delays.h"
+#include "../utils/sprintf.h"
 #include "gpio.h"
 #include "mbox.h"
-#include "sprintf.h"
 
 /* PL011 UART registers */
 #define UART0_DR ((volatile unsigned int *)(MMIO_BASE + 0x00201000))
