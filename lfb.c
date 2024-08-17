@@ -2,21 +2,6 @@
 #include "mbox.h"
 #include "uart.h"
 
-/* PC Screen Font as used by Linux Console */
-typedef struct
-{
-  unsigned int magic;
-  unsigned int version;
-  unsigned int headersize;
-  unsigned int flags;
-  unsigned int numglyph;
-  unsigned int bytesperglyph;
-  unsigned int height;
-  unsigned int width;
-  unsigned char glyphs;
-} __attribute__((packed)) psf_t;
-extern volatile unsigned char _binary_font_psf_start;
-
 /* Scalable Screen Font (https://gitlab.com/bztsrc/scalable-font2) */
 typedef struct
 {
@@ -103,58 +88,9 @@ void lfb_init()
 }
 
 /**
- * Display a string using fixed size PSF
- */
-void lfb_print(int x, int y, char *s)
-{
-  psf_t *font = (psf_t *)&_binary_font_psf_start;
-
-  while (*s)
-  {
-    unsigned char *glyph = (unsigned char *)&_binary_font_psf_start +
-                           font->headersize + (*((unsigned char *)s) < font->numglyph ? *s : 0) * font->bytesperglyph;
-    int offs = (y * pitch) + (x * 4);
-    int i, j, line, mask, bytesperline = (font->width + 7) / 8;
-
-    if (*s == '\r')
-    {
-      x = 0;
-    }
-    else if (*s == '\n')
-    {
-      x = 0;
-      y += font->height;
-    }
-    else
-    {
-      // Display a character.
-      for (j = 0; j < font->height; j++)
-      {
-        // Display one row.
-        line = offs;
-        mask = 1 << (font->width - 1);
-        for (i = 0; i < font->width; i++)
-        {
-          // If bit set, we use white color, otherwise black.
-          *((unsigned int *)(lfb + line)) = ((int)*glyph) & mask ? 0xFFFFFF : 0;
-          mask >>= 1;
-          line += 4;
-        }
-        // Adjust to next line.
-        glyph += bytesperline;
-        offs += pitch;
-      }
-      x += (font->width + 1);
-    }
-
-    s++;
-  }
-}
-
-/**
  * Display a string using proportional SSFN
  */
-void lfb_proprint(int x, int y, char *s)
+void lfb_print(int x, int y, char *s)
 {
   sfn_t *font = (sfn_t *)&_binary_font_sfn_start;
   unsigned char *ptr, *chr, *frg;
