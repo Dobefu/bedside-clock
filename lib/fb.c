@@ -1,4 +1,5 @@
-#include "../utils/delays.h"
+#include "fb.h"
+#include "../utils/colors.h"
 #include "mbox.h"
 #include "uart.h"
 
@@ -90,7 +91,7 @@ void fb_init()
 /**
  * Display a string using proportional SSFN
  */
-void fb_print(int x, int y, char *s)
+void fb_text(int x, int y, char *s, color_t col)
 {
   sfn_t *font = (sfn_t *)&_binary_font_sfn_start;
   unsigned char *ptr, *chr, *frg;
@@ -200,12 +201,30 @@ void fb_print(int x, int y, char *s)
           }
 
           if (*frg & m)
-            *((unsigned int *)p) = 0xFFFFFF;
+            *((unsigned int *)p) = ((col.r & 0xff) << 16) + ((col.g & 0xff) << 8) + (col.b & 0xff);
+          // *((unsigned int *)p) = 0xFFFFFF;
         }
     }
 
     // Add advances.
     x += chr[4] + 1;
     y += chr[5];
+  }
+}
+
+void fb_rect(int x, int y, unsigned int w, unsigned int h, color_t col)
+{
+  unsigned char *ptr = fb;
+  int p = x * 4 + (y * 800 * 4);
+
+  for (unsigned int i = 0; i < w * 4; i += 4)
+  {
+    for (unsigned int j = 0; j < h * 4; j += 4)
+    {
+      ptr[p + i + (j * 800)] = col.r;
+      ptr[p + i + (j * 800) + 1] = col.g;
+      ptr[p + i + (j * 800) + 2] = col.b;
+      ptr[p + i + (j * 800) + 3] = 255;
+    }
   }
 }
