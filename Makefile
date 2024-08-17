@@ -1,6 +1,6 @@
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
-CFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
+CFLAGS = -Wall -O2 -ffreestanding -fno-stack-protector -nostdinc -nostdlib -nostartfiles -mstrict-align
 
 all: clean kernel8.img
 
@@ -10,8 +10,14 @@ start.o: start.S
 %.o: %.c
 	aarch64-elf-gcc $(CFLAGS) -c $< -o $@
 
-kernel8.img: start.o $(OBJS)
-	aarch64-elf-ld -nostdlib start.o $(OBJS) -T link.ld -o kernel8.elf
+font_psf.o: font.psf
+	aarch64-elf-ld -r -b binary -o font_psf.o font.psf
+
+font_sfn.o: font.sfn
+	aarch64-elf-ld -r -b binary -o font_sfn.o font.sfn
+
+kernel8.img: start.o font_psf.o font_sfn.o $(OBJS)
+	aarch64-elf-ld -nostdlib start.o font_psf.o font_sfn.o $(OBJS) -T link.ld -o kernel8.elf
 	aarch64-elf-objcopy -O binary kernel8.elf kernel8.img
 
 clean:
