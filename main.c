@@ -1,27 +1,23 @@
 #include "lib/fb.h"
+#include "lib/mbox.h"
 #include "lib/uart.h"
 #include "utils/colors.h"
 #include "utils/delays.h"
+#include "utils/rand.h"
 
 int main()
 {
-  char c;
-  int x = -1600;
-
+  rand_init();
   uart_init();
   fb_init();
 
-  fb_rect(40, 45, 100, 100, colors_red);
-  fb_rect(40, 190, 100, 100, colors_green);
-  fb_rect(40, 335, 100, 100, colors_blue);
-
-  fb_rect(600, 0, 200, 480, colors_white);
+  fb_text(0, 0, "Test", colors_white, 1);
+  fb_text(0, 6, "Test", colors_white, 2);
+  fb_text(0, 8, "Test", colors_white, 4);
+  fb_text(0, 9, "Test", colors_white, 8);
+  fb_text(0, 9, "Test", colors_white, 16);
 
   while (1)
   {
-    fb_text(x % (800 * 480), 0, "(<", colors_black);
-    x++;
-    fb_text(x % (800 * 480), 0, "(<", colors_white);
-    wait_msec(1000);
   }
 }

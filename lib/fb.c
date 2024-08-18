@@ -91,7 +91,7 @@ void fb_init()
 /**
  * Display a string using proportional SSFN
  */
-void fb_text(int x, int y, char *s, color_t col)
+void fb_text(int x, int y, char *s, color_t col, unsigned short int fs)
 {
   sfn_t *font = (sfn_t *)&_binary_font_sfn_start;
   unsigned char *ptr, *chr, *frg;
@@ -133,7 +133,7 @@ void fb_text(int x, int y, char *s, color_t col)
     else if (c == '\n')
     {
       x = 0;
-      y += font->height;
+      y += font->height * fs;
       continue;
     }
 
@@ -173,7 +173,7 @@ void fb_text(int x, int y, char *s, color_t col)
 
     // Uncompress and display fragments.
     ptr = chr + 6;
-    o = (unsigned long)fb + y * pitch + x * 4;
+    o = (unsigned long)fb + (y * fs) * pitch + x * (4 * fs);
 
     for (i = n = 0; i < chr[1]; i++, ptr += chr[0] & 0x40 ? 6 : 5)
     {
@@ -185,14 +185,14 @@ void fb_text(int x, int y, char *s, color_t col)
       if ((frg[0] & 0xE0) != 0x80)
         continue;
 
-      o += (int)(ptr[1] - n) * pitch;
+      o += (int)(ptr[1] - n) * pitch * fs;
       n = ptr[1];
       k = ((frg[0] & 0x1F) + 1) << 3;
       j = frg[1] + 1;
       frg += 2;
 
-      for (m = 1; j; j--, n++, o += pitch)
-        for (p = o, l = 0; l < k; l++, p += 4, m <<= 1)
+      for (m = 1; j; j--, n++, o += pitch * fs)
+        for (p = o, l = 0; l < k; l++, p += (4 * fs), m <<= 1)
         {
           if (m > 0x80)
           {
@@ -201,8 +201,15 @@ void fb_text(int x, int y, char *s, color_t col)
           }
 
           if (*frg & m)
-            *((unsigned int *)p) = ((col.r & 0xff) << 16) + ((col.g & 0xff) << 8) + (col.b & 0xff);
-          // *((unsigned int *)p) = 0xFFFFFF;
+          {
+            for (unsigned short int yy = 0; yy < fs * 800; yy += 800)
+            {
+              for (unsigned short int xx = 0; xx < fs; xx++)
+              {
+                *((unsigned int *)p + xx + yy) = ((col.r & 0xff) << 16) + ((col.g & 0xff) << 8) + (col.b & 0xff);
+              }
+            }
+          }
         }
     }
 
