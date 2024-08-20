@@ -42,8 +42,8 @@ void fb_init()
   mbox[7] = 0x48004; // set virt wh
   mbox[8] = 8;
   mbox[9] = 8;
-  mbox[10] = 800; // FrameBufferInfo.virtual_width
-  mbox[11] = 480; // FrameBufferInfo.virtual_height
+  mbox[10] = 1600; // FrameBufferInfo.virtual_width
+  mbox[11] = 960;  // FrameBufferInfo.virtual_height
 
   mbox[12] = 0x48009; // set virt offset
   mbox[13] = 8;
@@ -77,8 +77,8 @@ void fb_init()
   if (mbox_call(MBOX_CH_PROP) && mbox[20] == 32 && mbox[28] != 0)
   {
     mbox[28] &= 0x3FFFFFFF;
-    width = mbox[5];
-    height = mbox[6];
+    width = mbox[10];
+    height = mbox[11];
     pitch = mbox[33];
     fb = (void *)((unsigned long)mbox[28]);
   }
@@ -88,10 +88,20 @@ void fb_init()
   }
 }
 
+void fb_flip()
+{
+  if (mbox[16] != 0)
+    mbox[16] = 0;
+  else
+    mbox[16] = 480;
+
+  mbox_call(MBOX_CH_PROP);
+}
+
 /**
  * Display a string using proportional SSFN
  */
-void fb_text(int x, int y, char *s, color_t col, unsigned short int fs)
+void fb_text(int x, int y, char *s, color_t col, unsigned short fs)
 {
   sfn_t *font = (sfn_t *)&_binary_font_sfn_start;
   unsigned char *ptr, *chr, *frg;
@@ -202,7 +212,7 @@ void fb_text(int x, int y, char *s, color_t col, unsigned short int fs)
 
           if (*frg & m)
           {
-            for (unsigned short int yy = 0; yy < fs * 800; yy += 800)
+            for (unsigned short int yy = 0; yy < fs * width; yy += width)
             {
               for (unsigned short int xx = 0; xx < fs; xx++)
               {
@@ -219,19 +229,19 @@ void fb_text(int x, int y, char *s, color_t col, unsigned short int fs)
   }
 }
 
-void fb_rect(int x, int y, unsigned int w, unsigned int h, color_t col)
+void fb_rect(int x, int y, unsigned w, unsigned h, color_t col)
 {
   unsigned char *ptr = fb;
-  int p = x * 4 + (y * 800 * 4);
+  int p = x * 4 + (y * width * 4);
 
   for (unsigned int i = 0; i < w * 4; i += 4)
   {
     for (unsigned int j = 0; j < h * 4; j += 4)
     {
-      ptr[p + i + (j * 800)] = col.r;
-      ptr[p + i + (j * 800) + 1] = col.g;
-      ptr[p + i + (j * 800) + 2] = col.b;
-      ptr[p + i + (j * 800) + 3] = 255;
+      ptr[p + i + (j * width)] = col.r;
+      ptr[p + i + (j * width) + 1] = col.g;
+      ptr[p + i + (j * width) + 2] = col.b;
+      ptr[p + i + (j * width) + 3] = 255;
     }
   }
 }
