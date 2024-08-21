@@ -24,6 +24,7 @@ extern volatile unsigned char _binary_font_sfn_start;
 
 unsigned int width, height, pitch;
 unsigned char *fb;
+unsigned int page = 0;
 
 /**
  * Set screen resolution to 800x480
@@ -90,10 +91,16 @@ void fb_init()
 
 void fb_flip()
 {
-  if (mbox[16] != 0)
+  if (page != 1)
+  {
+    page = 1;
     mbox[16] = 0;
+  }
   else
+  {
+    page = 0;
     mbox[16] = 480;
+  }
 
   mbox_call(MBOX_CH_PROP);
 }
@@ -103,6 +110,8 @@ void fb_flip()
  */
 void fb_text(int x, int y, char *s, color_t col, unsigned short fs)
 {
+  y += page * (height / 2);
+
   sfn_t *font = (sfn_t *)&_binary_font_sfn_start;
   unsigned char *ptr, *chr, *frg;
   unsigned int c;
@@ -231,6 +240,8 @@ void fb_text(int x, int y, char *s, color_t col, unsigned short fs)
 
 void fb_rect(int x, int y, unsigned w, unsigned h, color_t col)
 {
+  y += page * (height / 2);
+
   unsigned char *ptr = fb;
   int p = x * 4 + (y * width * 4);
 
