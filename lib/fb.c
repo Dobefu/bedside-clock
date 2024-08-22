@@ -192,7 +192,10 @@ void fb_text(int x, int y, char *s, color_t col, unsigned short fs)
 
     // Uncompress and display fragments.
     ptr = chr + 6;
-    o = (unsigned long)fb + y * pitch + x * (4 * fs);
+    o = (unsigned long)fb + (y - fs * 2) * pitch + x * (4 * fs);
+
+    if (fs > 1)
+      o -= fs * width;
 
     for (i = n = 0; i < chr[1]; i++, ptr += chr[0] & 0x40 ? 6 : 5)
     {
