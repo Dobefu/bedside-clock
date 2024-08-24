@@ -210,7 +210,7 @@ void fb_text(int x, int y, char *s, color_t col, unsigned short fs)
       o += (int)(ptr[1] - n) * pitch * fs;
 
       if (fs > 1)
-        o += (width / (fs)) * fs;
+        o += (width / fs) * fs;
 
       n = ptr[1];
       k = ((frg[0] & 0x1F) + 1) << 3;
