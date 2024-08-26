@@ -8,9 +8,10 @@ static const char FromKernel[] = "kernel";
 
 CKernel::CKernel(void)
 		: m_Screen(m_Options.GetWidth(), m_Options.GetHeight()),
-			m_Time(),
 			m_Timer(&m_Interrupt),
-			m_Graphics(0, 0)
+			m_Logger(m_Options.GetLogLevel(), &m_Timer),
+			m_Time(),
+			m_Graphics(0, 0, false)
 {
 }
 
@@ -44,6 +45,17 @@ boolean CKernel::Initialize(void)
 
 	if (bOK)
 	{
+		CDevice *pTarget = m_DeviceNameService.GetDevice(m_Options.GetLogDevice(), FALSE);
+		if (pTarget == 0)
+		{
+			pTarget = &m_Screen;
+		}
+
+		bOK = m_Logger.Initialize(pTarget);
+	}
+
+	if (bOK)
+	{
 		bOK = m_Graphics.Initialize();
 	}
 
@@ -56,13 +68,12 @@ TShutdownMode CKernel::Run(void)
 
 	while (1)
 	{
+		continue;
 		m_Graphics.ClearScreen(BLACK_COLOR);
 
 		m_Graphics.DrawText(100, 100, WHITE_COLOR, time, C2DGraphics::AlignRight);
 
 		m_Graphics.UpdateDisplay();
-
-		m_Timer.MsDelay(100);
 	}
 
 	return ShutdownHalt;

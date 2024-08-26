@@ -10,6 +10,7 @@
 #include <circle/exceptionhandler.h>
 #include <circle/interrupt.h>
 #include <circle/koptions.h>
+#include <circle/logger.h>
 #include <circle/screen.h>
 #include <circle/serial.h>
 #include <circle/time.h>
@@ -43,6 +44,7 @@ private:
 	CExceptionHandler m_ExceptionHandler;
 	CInterruptSystem m_Interrupt;
 	CTimer m_Timer;
+	CLogger m_Logger;
 
 	CTime m_Time;
 	C2DGraphics m_Graphics;
