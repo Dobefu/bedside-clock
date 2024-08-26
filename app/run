@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+./makeall clean
+./makeall
+qemu-system-aarch64 -M raspi3b -kernel ./template/kernel8.img

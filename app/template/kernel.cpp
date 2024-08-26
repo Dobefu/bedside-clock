@@ -52,7 +52,7 @@ boolean CKernel::Initialize(void)
 
 TShutdownMode CKernel::Run(void)
 {
-	const char *time = m_Timer.GetTimeString();
+	const char *time = (char *)m_Timer.GetTimeString();
 
 	while (1)
 	{
